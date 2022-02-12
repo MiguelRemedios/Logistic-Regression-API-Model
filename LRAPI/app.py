@@ -1,8 +1,11 @@
 import numpy as np
 from flask import Flask, request
 import pickle
+import json
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 model = pickle.load(open("model.pkl", "rb"))
 model2 = pickle.load(open("modelTest.pkl", "rb"))
@@ -44,11 +47,15 @@ def analyse2():
     age = request_data['age']
     features = [age]
     matrix = [np.array(features)]
-    print(matrix)
     prediction = model2.predict(matrix)
-    return '''
-               The age value is: {}
-               Prediction: {}'''.format(age, prediction)
+    prediction_scaled = prediction.item(0)
+    print(type(prediction_scaled))
+
+    if prediction_scaled:
+        value = {
+            "response": prediction_scaled
+        }
+    return json.dumps(value)
 
 
 if __name__ == '__main__':
